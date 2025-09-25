@@ -2,6 +2,7 @@
 {
     internal class Program
     {
+        static ServerConnection server = new ServerConnection("http://localhost:3000");
         static void Main(string[] args)
         {
             while (true)
@@ -21,6 +22,7 @@
 
         static void WriteMenu()
         {
+            //Subject-re az összes
             Console.Clear();
             Console.WriteLine("1. Adatok listázása");
             Console.WriteLine("2. Adat létrehozásas");
@@ -55,43 +57,56 @@
             
         }   
 
-        static void SwitchMenu(int num)
+        static async Task SwitchMenu(int num)
         {
             switch (num)
             {
-                case 1: functionOne(); break;
-                case 2: functionTwo(); break;
-                case 3: functionThree(); break;
-                case 4: functionFour(); break;
-                case 5: functionFive(); break;
+                case 1: await functionOne(); break;
+                case 2: await functionTwo(); break;
+                case 3: await functionThree(); break;
+                case 4: await functionFour(); break;
+                case 5: await functionFive(); break;
                 case 6: functionSix(); break;
                 default: Console.WriteLine("Hibás meneupont"); break;
             }
         }
 
-        static void functionOne()
+        static async Task functionOne()
         {
-
+            var subjects = await server.GetSubjects();
+            foreach (var s in subjects)
+            {
+                Console.WriteLine($"{s.id}: {s.name}");
+            }
         }
-        static void functionTwo()
+        static async Task functionTwo()
         {
-
+            Console.Write("Add meg a tantárgy nevét: ");
+            string name = Console.ReadLine();
+            var message = await server.PostSubject(name);
         }
-        static void functionThree()
+        static async Task functionThree()
         {
-
+            var subject = await server.BiggestSubject();
+            if (subject != null) Console.WriteLine($"Legnagyobb tantárgy: {subject.id} - {subject.name}");
+            else Console.WriteLine("Nincs tantárgy");
         }
-        static void functionFour()
+        static async Task functionFour()
         {
-
+            var subject = await server.SmallestSubject();
+            if (subject != null) Console.WriteLine($"Legkisebb tantárgy: {subject.id} - {subject.name}");
+            else Console.WriteLine("Nincs tantárgy");
         }
-        static void functionFive()
+        static async Task functionFive()
         {
-
+            Console.Write("Add meg a törlendő tantárgy ID-ját: ");
+            int id = GetNumber(1);
+            var message = await server.DeleteSubject(id);
         }
         static void functionSix()
         {
-
+            Console.WriteLine("Kilépés...");
+            Environment.Exit(0);
         }
     }
 }
